@@ -16,6 +16,10 @@
 
 A modern AI-powered reading app that supports multiple formats and enhanced reading workflows.
 
+### Product Screenshot
+
+![Lumina Reader Overview](./template.png)
+
 ### Features
 
 - Multi-format reading support (EPUB / PDF / Markdown / TXT / Web)
@@ -124,6 +128,10 @@ This project is in an active testing and feedback stage.
 ## 中文
 
 一个现代化的 AI 阅读应用，支持多种文档格式和增强阅读工作流。
+
+### 产品截图
+
+![Lumina Reader 介绍截图](./template.png)
 
 ### 功能特性
 
