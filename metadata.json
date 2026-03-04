@@ -1,0 +1,5 @@
+{
+  "name": "Lumina Reader",
+  "description": "A lightweight, AI-assisted book reader supporting TXT, PDF, and EPUB formats with a focus on design and usability.",
+  "requestFramePermissions": []
+}
