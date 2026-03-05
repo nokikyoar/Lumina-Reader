@@ -28,6 +28,7 @@ interface LibraryContentProps {
   handleDelete: (e: React.MouseEvent, id: string) => void;
   onSelectBook: (book: Book) => void;
   onShowUpload: () => void;
+  onOpenInsights: () => void;
 }
 
 export function LibraryContent(props: LibraryContentProps) {
@@ -55,6 +56,7 @@ export function LibraryContent(props: LibraryContentProps) {
     handleDelete,
     onSelectBook,
     onShowUpload,
+    onOpenInsights,
   } = props;
 
   const totalBooks = books.length;
@@ -126,11 +128,17 @@ export function LibraryContent(props: LibraryContentProps) {
     }
   };
 
-  const typeOrder: Book['type'][] = ['pdf', 'epub', 'txt', 'md', 'web'];
-  const formatCounts = filteredBooks.reduce<Record<string, number>>((acc, book) => {
+  const selectedCategory = categories.find((cat) => cat.id === selectedCategoryId) || null;
+
+  const formatSummary = books.reduce<Record<string, number>>((acc, book) => {
     acc[book.type] = (acc[book.type] || 0) + 1;
     return acc;
   }, {});
+
+  const formatSummaryText = Object.entries(formatSummary)
+    .sort((a, b) => b[1] - a[1])
+    .map(([type, count]) => `${getBookTypeMeta(type as Book['type']).label} ${count}`)
+    .join(' · ');
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-10 space-y-10">
@@ -177,17 +185,29 @@ export function LibraryContent(props: LibraryContentProps) {
               </p>
             </div>
 
-            {recentBook && (
-              <div className="mt-8">
-                <button
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              {recentBook && (
+                <motion.button
+                  whileHover={{ y: -2, scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => onSelectBook(recentBook)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_34px_-18px_rgba(0,82,255,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_42px_-18px_rgba(0,82,255,0.75)]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_34px_-18px_rgba(0,82,255,0.8)] transition-all duration-300 hover:shadow-[0_24px_42px_-18px_rgba(0,82,255,0.75)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/25"
                 >
                   <BookOpen className="h-4 w-4" />
                   Continue Reading
-                </button>
-              </div>
-            )}
+                </motion.button>
+              )}
+
+              <motion.button
+                whileHover={{ y: -2, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={onOpenInsights}
+                className="inline-flex items-center gap-2 rounded-xl border border-[#4D7CFF]/30 bg-white/90 px-5 py-3 text-sm font-semibold text-[#1E3A8A] shadow-[0_14px_30px_-20px_rgba(30,58,138,0.45)] backdrop-blur transition-all duration-300 hover:border-[#4D7CFF]/50 hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/20"
+              >
+                <span className="h-2 w-2 rounded-full bg-[#4D7CFF]" />
+                View Insights
+              </motion.button>
+            </div>
           </div>
         </motion.div>
 
@@ -200,7 +220,7 @@ export function LibraryContent(props: LibraryContentProps) {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgba(77,124,255,0.35)_0%,rgba(77,124,255,0)_48%)]" />
           <div className="relative z-10 flex h-full flex-col justify-between">
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">Overview</h3>
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
                 <p className="text-4xl font-serif font-bold leading-none">{totalBooks}</p>
                 <p className="mt-2 text-sm text-slate-300">Total Books</p>
@@ -210,7 +230,14 @@ export function LibraryContent(props: LibraryContentProps) {
                 <p className="bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] bg-clip-text text-4xl font-serif font-bold leading-none text-transparent">
                   {categoriesUsedCount}
                 </p>
-                <p className="mt-2 text-sm text-slate-300">Shelves in use</p>
+                <p className="mt-2 text-sm text-slate-300">Shelves in Use</p>
+              </div>
+              <div className="h-px bg-white/15" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Format Mix</p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-200">
+                  {formatSummaryText || 'No books yet'}
+                </p>
               </div>
             </div>
           </div>
@@ -223,59 +250,49 @@ export function LibraryContent(props: LibraryContentProps) {
         transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
         className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_18px_42px_-34px_rgba(15,23,42,0.55)]"
       >
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1">
-            <button
-              onClick={() => setSelectedCategoryId(null)}
-              className={cn(
-                'whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-all',
-                selectedCategoryId === null
-                  ? 'bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] text-white shadow-[0_12px_24px_-16px_rgba(0,82,255,0.8)]'
-                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-              )}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-1">
+            <label htmlFor="shelf-filter" className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+              Shelf Filter
+            </label>
+            <select
+              id="shelf-filter"
+              value={selectedCategoryId ?? 'all'}
+              onChange={(e) => setSelectedCategoryId(e.target.value === 'all' ? null : e.target.value)}
+              className="w-full min-w-[220px] rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 outline-none transition-all duration-200 focus:border-[#4D7CFF] focus:ring-4 focus:ring-[#0052FF]/10"
+              title="Filter books by shelf"
             >
-              All Books
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategoryId(cat.id)}
-                className={cn(
-                  'whitespace-nowrap rounded-xl px-4 py-2 text-sm font-semibold transition-all',
-                  selectedCategoryId === cat.id
-                    ? 'bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] text-white shadow-[0_12px_24px_-16px_rgba(0,82,255,0.8)]'
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
-                )}
-              >
-                {cat.name}
-              </button>
-            ))}
+              <option value="all">All Library</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {selectedCategoryId !== null && (
+            {selectedCategory && (
               <div className="mr-1 flex items-center gap-1 border-r border-slate-200 pr-3">
                 <button
                   onClick={() => {
-                    const cat = categories.find((c) => c.id === selectedCategoryId);
-                    if (cat) {
-                      setCategoryToRename(cat);
-                      setRenameCategoryName(cat.name);
-                    }
+                    setCategoryToRename(selectedCategory);
+                    setRenameCategoryName(selectedCategory.name);
                   }}
-                  className="rounded-full p-2 text-slate-400 transition-colors hover:bg-[#0052FF]/10 hover:text-[#0052FF]"
+                  className="rounded-full p-2 text-slate-400 transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#0052FF]/10 hover:text-[#0052FF] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/20"
+                  title="Rename shelf"
+                  aria-label="Rename shelf"
                 >
                   <Edit2 className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => {
-                    const cat = categories.find((c) => c.id === selectedCategoryId);
-                    if (cat) {
-                      setCategoryToDelete(cat);
-                      setDeleteCategoryMode('keep-books');
-                    }
+                    setCategoryToDelete(selectedCategory);
+                    setDeleteCategoryMode('keep-books');
                   }}
-                  className="rounded-full p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                  className="rounded-full p-2 text-slate-400 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200/60"
+                  title="Delete shelf"
+                  aria-label="Delete shelf"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -291,13 +308,15 @@ export function LibraryContent(props: LibraryContentProps) {
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
                   onBlur={() => setTimeout(() => setShowCategoryInput(false), 200)}
-                  placeholder="Category name..."
-                  className="w-32 border-none bg-transparent px-3 py-1 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                  placeholder="New shelf name"
+                  className="w-36 border-none bg-transparent px-3 py-1 text-sm text-slate-900 outline-none placeholder:text-slate-400"
                 />
                 <button
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={handleAddCategory}
-                  className="rounded-full bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] p-1.5 text-white transition-opacity hover:opacity-90"
+                  className="rounded-full bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] p-1.5 text-white transition-all duration-200 hover:-translate-y-0.5 hover:opacity-90 active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/25"
+                  title="Create shelf"
+                  aria-label="Create shelf"
                 >
                   <Check className="h-3 w-3" />
                 </button>
@@ -305,49 +324,29 @@ export function LibraryContent(props: LibraryContentProps) {
             ) : (
               <button
                 onClick={() => setShowCategoryInput(true)}
-                className="rounded-full p-2 text-slate-400 transition-colors hover:bg-[#0052FF]/10 hover:text-[#0052FF]"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#0052FF]/30 hover:bg-[#0052FF]/5 hover:text-[#0052FF] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/20"
+                title="Add a new shelf"
               >
-                <Plus className="h-5 w-5" />
+                <Plus className="h-4 w-4" />
+                Add Shelf
               </button>
             )}
           </div>
         </div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, delay: 0.12, ease: 'easeOut' }}
-        className="space-y-3"
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Format Distribution</span>
-          <span className="h-px flex-1 bg-slate-200" />
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {typeOrder.map((typeKey) => {
-            const count = formatCounts[typeKey] || 0;
-            if (!count) return null;
-            const meta = getBookTypeMeta(typeKey);
-            const MetaIcon = meta.icon;
-            return (
-              <div
-                key={typeKey}
-                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600"
-              >
-                <MetaIcon className="h-3.5 w-3.5 text-[#0052FF]" />
-                <span>{meta.label}</span>
-                <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] leading-none text-slate-600">{count}</span>
-              </div>
-            );
-          })}
-        </div>
-      </motion.div>
-
       <div className="space-y-5">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Your Collection</span>
-          <span className="h-px flex-1 bg-slate-200" />
+          <span className="h-px min-w-[80px] flex-1 bg-slate-200" />
+          <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
+            {filteredBooks.length} {filteredBooks.length === 1 ? 'Book' : 'Books'}
+          </span>
+          {selectedCategory && (
+            <span className="inline-flex items-center rounded-full border border-[#0052FF]/20 bg-[#0052FF]/5 px-3 py-1 text-xs font-semibold text-[#0052FF]">
+              Shelf: {selectedCategory.name}
+            </span>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -361,11 +360,12 @@ export function LibraryContent(props: LibraryContentProps) {
               <motion.div
                 layout
                 key={book.id}
-                initial={{ opacity: 0, y: 12, scale: 0.97 }}
+                initial={{ opacity: 0, y: 14, scale: 0.965 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.18), ease: 'easeOut' }}
-                whileHover={{ y: -6 }}
+                exit={{ opacity: 0, y: 10, scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 250, damping: 22, delay: Math.min(index * 0.028, 0.16) }}
+                whileHover={{ y: -8, scale: 1.012 }}
+                whileTap={{ scale: 0.992 }}
                 onClick={() => onSelectBook(book)}
                 className={cn('group relative z-0 flex cursor-pointer flex-col transition-transform duration-300', editingBookId === book.id && 'z-50')}
               >
@@ -410,7 +410,7 @@ export function LibraryContent(props: LibraryContentProps) {
                         e.stopPropagation();
                         setEditingBookId(editingBookId === book.id ? null : book.id);
                       }}
-                      className="rounded-full bg-white/92 p-2 text-slate-800 shadow-sm transition-all hover:scale-105 hover:bg-white"
+                      className="rounded-full bg-white/92 p-2 text-slate-800 shadow-sm transition-all hover:scale-105 hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/25"
                     >
                       <MoreVertical className="h-4 w-4" />
                     </button>
@@ -441,27 +441,31 @@ export function LibraryContent(props: LibraryContentProps) {
                     )}
                   </div>
 
-                  <h3 className="line-clamp-2 font-serif text-[17px] font-bold leading-tight text-slate-900 transition-colors group-hover:text-[#0052FF]">
+                  <h3 className="line-clamp-2 font-serif text-[17px] font-bold leading-tight text-slate-900 transition-all duration-200 group-hover:text-[#0052FF]">
                     {book.title}
                   </h3>
                   <p className="line-clamp-1 text-sm font-medium text-slate-500">{book.author || 'Unknown Author'}</p>
                 </div>
 
                 {editingBookId === book.id && (
-                  <div
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 24 }}
                     className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <div className="p-1.5">
                       <button
                         onClick={() => handleEditClick(book)}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/20"
                       >
                         <Edit2 className="h-4 w-4 text-slate-400" /> Edit Details
                       </button>
                       <button
                         onClick={() => handleTogglePinBook(book)}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/20"
                       >
                         <Pin className={cn('h-4 w-4', book.isPinned ? 'fill-current text-[#0052FF]' : 'text-slate-400')} />
                         {book.isPinned ? 'Unpin book' : 'Pin book'}
@@ -476,7 +480,7 @@ export function LibraryContent(props: LibraryContentProps) {
                           key={cat.id}
                           onClick={() => handleUpdateCategory(book, cat.name)}
                           className={cn(
-                            'flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors',
+                            'flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/20',
                             book.category === cat.name ? 'bg-[#0052FF]/8 font-medium text-[#0052FF]' : 'text-slate-600 hover:bg-slate-50'
                           )}
                         >
@@ -488,7 +492,7 @@ export function LibraryContent(props: LibraryContentProps) {
                       {book.category && (
                         <button
                           onClick={() => handleUpdateCategory(book, undefined)}
-                          className="mt-1 w-full rounded-xl px-3 py-2 text-left text-sm text-slate-500 transition-colors hover:bg-slate-50"
+                          className="mt-1 w-full rounded-xl px-3 py-2 text-left text-sm text-slate-500 transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/20"
                         >
                           Uncategorized
                         </button>
@@ -500,12 +504,12 @@ export function LibraryContent(props: LibraryContentProps) {
                     <div className="p-1.5">
                       <button
                         onClick={(e) => handleDelete(e, book.id)}
-                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                        className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200/60"
                       >
                         <Trash2 className="h-3.5 w-3.5" /> Delete Book
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
               </motion.div>
             );
@@ -524,12 +528,14 @@ export function LibraryContent(props: LibraryContentProps) {
             </div>
             <p className="text-lg font-semibold text-slate-900">No books found</p>
             <p className="mb-6 text-sm">Your library is ready for a fresh first upload.</p>
-            <button
+            <motion.button
+              whileHover={{ y: -2, scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
               onClick={onShowUpload}
-              className="rounded-full bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_16px_34px_-18px_rgba(0,82,255,0.8)] transition-all hover:-translate-y-0.5 hover:opacity-95"
+              className="rounded-full bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] px-6 py-2.5 text-sm font-semibold text-white shadow-[0_16px_34px_-18px_rgba(0,82,255,0.8)] transition-all hover:opacity-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/25"
             >
               Add your first book
-            </button>
+            </motion.button>
           </motion.div>
         )}
         </div>

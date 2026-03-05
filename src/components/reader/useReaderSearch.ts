@@ -131,8 +131,8 @@ export function useReaderSearch({
       return;
     }
 
-    if (book.type === 'epub') onMessage('EPUB 当前仅支持目录级命中定位。');
-    if (book.type === 'pdf') onMessage('PDF 当前仅支持页码定位。');
+    if (book.type === 'epub') onMessage('EPUB currently supports TOC-level match navigation only.');
+    if (book.type === 'pdf') onMessage('PDF currently supports page-number navigation only.');
   }, [book.type, goToEpubHref, readingMode, searchResults, searchableText.length, setLayoutTick, setLocation, textPagedProgressRef, txtContainerRef, onMessage]);
 
   const goToPrevSearchResult = useCallback(() => {

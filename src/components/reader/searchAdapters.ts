@@ -63,7 +63,7 @@ export const buildTextSearchResults = (opts: {
       end,
       matchText: text.slice(matchIndex, end),
       preview: makePreview(text, matchIndex, end),
-      contextLabel: type === 'md' ? `段落 ${paragraphIndex} · 行 ${lineNumber}` : `段落 ${paragraphIndex}`,
+      contextLabel: type === 'md' ? `Paragraph ${paragraphIndex} · Line ${lineNumber}` : `Paragraph ${paragraphIndex}`,
       target: {
         ratio: matchIndex / Math.max(1, text.length),
       },
@@ -100,7 +100,7 @@ export const buildEpubTocSearchResults = (opts: {
           end: node.label.length,
           matchText: node.label,
           preview: node.label,
-          contextLabel: `目录层级 ${depth}`,
+          contextLabel: `TOC level ${depth}`,
           target: { href: node.href },
         });
       }
@@ -127,8 +127,8 @@ export const buildPdfPageSearchResults = (opts: { numPages: number; query: strin
       start: 0,
       end: keyword.length,
       matchText: keyword,
-      preview: `跳转到第 ${normalized} 页`,
-      contextLabel: `PDF 页码定位`,
+      preview: `Jump to page ${normalized}`,
+      contextLabel: 'PDF page location',
       target: { page: normalized },
     },
   ].slice(0, limit);

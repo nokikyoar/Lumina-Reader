@@ -36,10 +36,11 @@ interface LibraryModalsProps {
   handleDeleteCategory: () => void;
 }
 
-const overlayClass = 'absolute inset-0 bg-slate-950/45 backdrop-blur-md';
-const panelClass = 'relative z-10 overflow-hidden border border-slate-200/80 bg-white/95 backdrop-blur-xl shadow-[0_28px_80px_-38px_rgba(15,23,42,0.45)]';
-const primaryButtonClass = 'rounded-xl bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] px-4 py-2 font-medium text-white shadow-[0_14px_30px_-16px_rgba(0,82,255,0.8)] transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95';
-const ghostButtonClass = 'rounded-xl px-4 py-2 text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-100';
+const overlayClass = 'absolute inset-0 bg-slate-950/55 backdrop-blur-lg';
+const panelClass = 'relative z-10 overflow-hidden border border-slate-200/80 bg-white/95 backdrop-blur-xl shadow-[0_32px_90px_-42px_rgba(15,23,42,0.5)]';
+const primaryButtonClass = 'rounded-xl bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] px-4 py-2 font-medium text-white shadow-[0_18px_34px_-18px_rgba(0,82,255,0.82)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_20px_38px_-16px_rgba(0,82,255,0.78)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#0052FF]/25';
+const ghostButtonClass = 'rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-600 transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-300/45';
+const dangerButtonClass = 'flex-1 rounded-xl bg-red-600 px-4 py-2 font-medium text-white shadow-[0_12px_26px_-16px_rgba(220,38,38,0.9)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-[0_18px_32px_-14px_rgba(220,38,38,0.85)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-300/45';
 
 export function LibraryModals(props: LibraryModalsProps) {
   const {
@@ -81,10 +82,10 @@ export function LibraryModals(props: LibraryModalsProps) {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowUploadModal(false)} className={overlayClass} />
             <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 16 }}
+              initial={{ opacity: 0, scale: 0.96, y: 18 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 16 }}
-              transition={{ duration: 0.28, ease: 'easeOut' }}
+              exit={{ opacity: 0, scale: 0.97, y: 14 }}
+              transition={{ type: 'spring', stiffness: 240, damping: 24 }}
               className={cn(panelClass, 'w-full max-w-2xl rounded-3xl p-7 md:p-8')}
             >
               <div className="absolute left-0 top-0 h-1.5 w-full bg-gradient-to-r from-[#0052FF] to-[#4D7CFF]" />
@@ -124,10 +125,10 @@ export function LibraryModals(props: LibraryModalsProps) {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setBookToEdit(null)} className={overlayClass} />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              initial={{ opacity: 0, scale: 0.97, y: 14 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 12 }}
-              transition={{ duration: 0.26, ease: 'easeOut' }}
+              exit={{ opacity: 0, scale: 0.98, y: 10 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 24 }}
               className={cn(panelClass, 'flex max-h-[82vh] w-full max-w-md flex-col rounded-2xl')}
             >
               <div className="border-b border-slate-100/90 bg-gradient-to-r from-white to-[#0052FF]/[0.04] p-5">
@@ -140,7 +141,7 @@ export function LibraryModals(props: LibraryModalsProps) {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm transition-colors hover:border-[#4D7CFF]/40 hover:bg-[#0052FF]/5" title="Change Cover">
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[#4D7CFF]/40 hover:bg-[#0052FF]/5 active:scale-[0.98]" title="Change Cover">
                     <ImagePlus className="h-4 w-4 text-[#0052FF]" />
                     Change Cover
                     <input
@@ -154,7 +155,7 @@ export function LibraryModals(props: LibraryModalsProps) {
                       }}
                     />
                   </label>
-                  <button onClick={onResetCover} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm transition-colors hover:bg-slate-50" title="Reset Cover">
+                  <button onClick={onResetCover} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-50 active:scale-[0.98]" title="Reset Cover">
                     <RefreshCcw className="h-4 w-4" />
                     Reset Cover
                   </button>
@@ -192,10 +193,10 @@ export function LibraryModals(props: LibraryModalsProps) {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeleteConfirm({ isOpen: false, bookId: null })} className={overlayClass} />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.97, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 24 }}
               className={cn(panelClass, 'w-full max-w-sm rounded-2xl p-6')}
             >
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600"><Trash2 className="h-6 w-6" /></div>
@@ -203,7 +204,7 @@ export function LibraryModals(props: LibraryModalsProps) {
               <p className="mb-5 text-center text-sm text-slate-500">This action cannot be undone.</p>
               <div className="flex gap-3">
                 <button onClick={() => setDeleteConfirm({ isOpen: false, bookId: null })} className={cn(ghostButtonClass, 'flex-1')}>Cancel</button>
-                <button onClick={confirmDelete} className="flex-1 rounded-xl bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700">Delete</button>
+                <button onClick={confirmDelete} className={cn(dangerButtonClass, 'font-medium')}>Delete</button>
               </div>
             </motion.div>
           </div>
@@ -215,21 +216,27 @@ export function LibraryModals(props: LibraryModalsProps) {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setCategoryToRename(null)} className={overlayClass} />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.97, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
-              className={cn(panelClass, 'w-full max-w-sm rounded-2xl p-6')}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+              className={cn(panelClass, 'w-full max-w-sm rounded-3xl')}
             >
-              <h3 className="mb-4 text-xl font-bold text-slate-900">Rename Category</h3>
-              <input
-                value={renameCategoryName}
-                onChange={(e) => setRenameCategoryName(e.target.value)}
-                className="mb-6 w-full rounded-xl border border-slate-300/90 px-3 py-2.5 transition-all focus:border-[#4D7CFF]/40 focus:outline-none focus:ring-4 focus:ring-[#0052FF]/10"
-              />
-              <div className="flex gap-3">
-                <button onClick={() => setCategoryToRename(null)} className={cn(ghostButtonClass, 'flex-1')}>Cancel</button>
-                <button onClick={handleRenameCategory} className={cn(primaryButtonClass, 'flex-1')}>Save</button>
+              <div className="border-b border-slate-100 bg-gradient-to-r from-white to-[#0052FF]/[0.05] px-6 py-5">
+                <h3 className="text-xl font-bold text-slate-900">Rename Shelf</h3>
+                <p className="mt-1 text-sm text-slate-500">Choose a short and clear shelf name.</p>
+              </div>
+              <div className="p-6">
+                <input
+                  value={renameCategoryName}
+                  onChange={(e) => setRenameCategoryName(e.target.value)}
+                  placeholder="Shelf name"
+                  className="mb-6 w-full rounded-xl border border-slate-300/90 px-3 py-2.5 transition-all focus:border-[#4D7CFF]/40 focus:outline-none focus:ring-4 focus:ring-[#0052FF]/10"
+                />
+                <div className="flex gap-3">
+                  <button onClick={() => setCategoryToRename(null)} className={cn(ghostButtonClass, 'flex-1')}>Cancel</button>
+                  <button onClick={handleRenameCategory} className={cn(primaryButtonClass, 'flex-1')}>Save Name</button>
+                </div>
               </div>
             </motion.div>
           </div>
@@ -241,27 +248,31 @@ export function LibraryModals(props: LibraryModalsProps) {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setCategoryToDelete(null)} className={overlayClass} />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.97, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
-              className={cn(panelClass, 'w-full max-w-md rounded-2xl p-6')}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+              className={cn(panelClass, 'w-full max-w-md rounded-3xl')}
             >
-              <h3 className="mb-2 text-center text-xl font-bold text-slate-900">Delete Category?</h3>
-              <p className="mb-5 text-center text-sm text-slate-500">Choose what to do with books in this category.</p>
-              <div className="mb-6 space-y-3">
-                <label className={cn('flex cursor-pointer items-center rounded-xl border p-3 transition-colors', deleteCategoryMode === 'keep-books' ? 'border-[#4D7CFF] bg-[#0052FF]/5' : 'border-slate-200 hover:bg-slate-50')}>
-                  <input type="radio" checked={deleteCategoryMode === 'keep-books'} onChange={() => setDeleteCategoryMode('keep-books')} />
-                  <span className="ml-3 text-sm">Keep books</span>
-                </label>
-                <label className={cn('flex cursor-pointer items-center rounded-xl border p-3 transition-colors', deleteCategoryMode === 'delete-books' ? 'border-red-500 bg-red-50' : 'border-slate-200 hover:bg-slate-50')}>
-                  <input type="radio" checked={deleteCategoryMode === 'delete-books'} onChange={() => setDeleteCategoryMode('delete-books')} />
-                  <span className="ml-3 text-sm">Delete books</span>
-                </label>
+              <div className="border-b border-slate-100 bg-gradient-to-r from-white to-red-50 px-6 py-5">
+                <h3 className="text-xl font-bold text-slate-900">Delete Shelf</h3>
+                <p className="mt-1 text-sm text-slate-500">Choose how to handle books in this shelf.</p>
               </div>
-              <div className="flex gap-3">
-                <button onClick={() => setCategoryToDelete(null)} className={cn(ghostButtonClass, 'flex-1')}>Cancel</button>
-                <button onClick={handleDeleteCategory} className="flex-1 rounded-xl bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700">Confirm Delete</button>
+              <div className="p-6">
+                <div className="mb-6 space-y-3">
+                  <label className={cn('flex cursor-pointer items-center rounded-xl border p-3 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]', deleteCategoryMode === 'keep-books' ? 'border-[#4D7CFF] bg-[#0052FF]/5' : 'border-slate-200 hover:bg-slate-50')}>
+                    <input type="radio" checked={deleteCategoryMode === 'keep-books'} onChange={() => setDeleteCategoryMode('keep-books')} />
+                    <span className="ml-3 text-sm font-medium text-slate-700">Keep books and move them to Uncategorized</span>
+                  </label>
+                  <label className={cn('flex cursor-pointer items-center rounded-xl border p-3 transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]', deleteCategoryMode === 'delete-books' ? 'border-red-500 bg-red-50' : 'border-slate-200 hover:bg-slate-50')}>
+                    <input type="radio" checked={deleteCategoryMode === 'delete-books'} onChange={() => setDeleteCategoryMode('delete-books')} />
+                    <span className="ml-3 text-sm font-medium text-slate-700">Delete this shelf and all books inside</span>
+                  </label>
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={() => setCategoryToDelete(null)} className={cn(ghostButtonClass, 'flex-1')}>Cancel</button>
+                  <button onClick={handleDeleteCategory} className={dangerButtonClass}>Delete Shelf</button>
+                </div>
               </div>
             </motion.div>
           </div>

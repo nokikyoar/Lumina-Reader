@@ -331,9 +331,9 @@ export function ChatSidebar({ book, currentTextContext, quotedText, onClearQuote
 
   const formatSessionTime = (timestamp: number) => {
     const delta = Date.now() - timestamp;
-    if (delta < 60_000) return '刚刚';
-    if (delta < 3_600_000) return `${Math.max(1, Math.floor(delta / 60_000))} 分钟前`;
-    if (delta < 86_400_000) return `${Math.max(1, Math.floor(delta / 3_600_000))} 小时前`;
+    if (delta < 60_000) return 'Just now';
+    if (delta < 3_600_000) return `${Math.max(1, Math.floor(delta / 60_000))}m ago`;
+    if (delta < 86_400_000) return `${Math.max(1, Math.floor(delta / 3_600_000))}h ago`;
     return new Date(timestamp).toLocaleDateString();
   };
 
@@ -369,10 +369,10 @@ export function ChatSidebar({ book, currentTextContext, quotedText, onClearQuote
 
     const summary = oldMessages
       .slice(-10)
-      .map((message) => `${message.role === 'user' ? '用户' : '助手'}：${message.text.slice(0, 120)}`)
+      .map((message) => `${message.role === 'user' ? 'User' : 'Assistant'}: ${message.text.slice(0, 120)}`)
       .join('\n');
 
-    const summaryMessage = makeMessage('model', `【历史摘要（自动压缩）】\n${summary}`);
+    const summaryMessage = makeMessage('model', `[History summary (auto-compressed)]\n${summary}`);
     setChatStore((prev) => ({
       ...prev,
       sessions: prev.sessions.map((session) => (
@@ -497,7 +497,7 @@ export function ChatSidebar({ book, currentTextContext, quotedText, onClearQuote
             <button
               onClick={handleCompressCurrentSession}
               className={cn('inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-colors', styles.inputBorder, styles.toolbarHoverBg)}
-              title="压缩旧历史"
+              title="Compress older history"
             >
               <Scissors className="w-3.5 h-3.5" />
               Compress
@@ -577,7 +577,7 @@ export function ChatSidebar({ book, currentTextContext, quotedText, onClearQuote
                   )}
                 </div>
                 <div className={cn('mt-1 px-1.5 text-[10px]', styles.subtleText)}>
-                  更新于 {formatSessionTime(session.updatedAt)}
+                  Updated {formatSessionTime(session.updatedAt)}
                 </div>
               </div>
             );

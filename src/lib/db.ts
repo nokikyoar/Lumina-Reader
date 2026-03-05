@@ -140,6 +140,18 @@ interface ReaderMeta {
   updatedAt: number;
 }
 
+export interface ReadingSessionEntity {
+  id: string;
+  bookId: string;
+  bookTitle: string;
+  startAt: number;
+  endAt: number;
+  durationMs: number;
+  startProgress: number;
+  endProgress: number;
+  progressDelta: number;
+}
+
 interface LuminaDB extends DBSchema {
   books: {
     key: string;
@@ -154,12 +166,17 @@ interface LuminaDB extends DBSchema {
     key: string;
     value: ReaderMeta;
   };
+  readingSessions: {
+    key: string;
+    value: ReadingSessionEntity;
+    indexes: { 'by-endAt': number; 'by-bookId': string };
+  };
 }
 
 const DB_NAME = 'lumina-reader-db';
 
 export async function initDB() {
-  return openDB<LuminaDB>(DB_NAME, 6, {
+  return openDB<LuminaDB>(DB_NAME, 7, {
     async upgrade(db, oldVersion, _newVersion, transaction) {
       if (oldVersion < 1) {
         const store = db.createObjectStore('books', { keyPath: 'id' });
@@ -195,6 +212,14 @@ export async function initDB() {
       if (oldVersion < 6) {
         if (!db.objectStoreNames.contains('readerMeta')) {
           db.createObjectStore('readerMeta', { keyPath: 'key' });
+        }
+      }
+
+      if (oldVersion < 7) {
+        if (!db.objectStoreNames.contains('readingSessions')) {
+          const sessionStore = db.createObjectStore('readingSessions', { keyPath: 'id' });
+          sessionStore.createIndex('by-endAt', 'endAt');
+          sessionStore.createIndex('by-bookId', 'bookId');
         }
       }
     },
@@ -245,4 +270,24 @@ export async function getReaderMeta<T = unknown>(key: string): Promise<T | undef
   const db = await initDB();
   const result = await db.get('readerMeta', key);
   return result?.value as T | undefined;
+}
+
+export async function saveReadingSession(session: ReadingSessionEntity) {
+  const db = await initDB();
+  return db.put('readingSessions', session);
+}
+
+export async function getReadingSessionsSince(since: number): Promise<ReadingSessionEntity[]> {
+  const db = await initDB();
+  const tx = db.transaction('readingSessions', 'readonly');
+  const index = tx.store.index('by-endAt');
+  const result = await index.getAll(IDBKeyRange.lowerBound(since));
+  await tx.done;
+  return result.sort((a, b) => a.endAt - b.endAt);
+}
+
+export async function getAllReadingSessions(): Promise<ReadingSessionEntity[]> {
+  const db = await initDB();
+  const result = await db.getAll('readingSessions');
+  return result.sort((a, b) => a.endAt - b.endAt);
 }

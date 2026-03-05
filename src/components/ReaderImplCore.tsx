@@ -29,6 +29,7 @@ import { useReaderBookmarks } from './reader/useReaderBookmarks';
 import { useReadingSpeedEstimator } from './reader/useReadingSpeedEstimator';
 import { exportHighlights } from './reader/exportHighlights';
 import { useWebBridge } from './reader/useWebBridge';
+import { useReadingAnalyticsTracker } from '@/features/insights/hooks/useReadingAnalyticsTracker';
 
 import 'pdfjs-dist/build/pdf.worker.min.mjs';
 
@@ -374,11 +375,15 @@ export function Reader({ book, onBack }: ReaderProps) {
     setWebFrameStatus,
     webFrameHint,
     setWebFrameHint,
+    webBlockedByPolicy,
+    setWebBlockedByPolicy,
     webBridgeConnected,
     webBridgeVersion,
     webBridgeLastError,
     webBridgeLastAction,
     normalizeWebInputUrl,
+    markHostAsBlocked,
+    clearBlockedHost,
   } = useWebBridge({
     isWeb,
     bookContent: book.content,
@@ -633,7 +638,14 @@ export function Reader({ book, onBack }: ReaderProps) {
     setShowSidebar(true);
   }, []);
 
+  const { endSession } = useReadingAnalyticsTracker({
+    bookId: book.id,
+    bookTitle: book.title,
+    getProgress: getNormalizedProgress,
+  });
+
   const handleBack = async () => {
+    await endSession('back');
     await persistProgress();
     onBack();
   };
@@ -650,6 +662,32 @@ export function Reader({ book, onBack }: ReaderProps) {
     setLocation(nextLeft);
     setLayoutTick((t) => t + 1);
   }, [textPagedPagesPerView]);
+
+  const handleOpenWebExternally = useCallback(() => {
+    const url = normalizeWebInputUrl(webUrl);
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    markHostAsBlocked(url);
+    setWebFrameStatus('blocked');
+    setWebBlockedByPolicy(true);
+    setWebFrameHint('Switched to external-open mode because this page disallows iframe embedding.');
+  }, [normalizeWebInputUrl, webUrl, markHostAsBlocked, setWebFrameStatus, setWebBlockedByPolicy, setWebFrameHint]);
+
+  const handleRetryWebEmbed = useCallback(() => {
+    const url = normalizeWebInputUrl(webUrl);
+    if (!url) return;
+    clearBlockedHost(url);
+    setWebBlockedByPolicy(false);
+    setWebFrameStatus('loading');
+    setWebFrameHint('Retrying embed...');
+  }, [normalizeWebInputUrl, webUrl, clearBlockedHost, setWebBlockedByPolicy, setWebFrameStatus, setWebFrameHint]);
+
+  const handleClearBlockedHost = useCallback(() => {
+    const url = normalizeWebInputUrl(webUrl);
+    if (!url) return;
+    clearBlockedHost(url);
+    setWebFrameHint('Embed block cache for this host has been cleared.');
+  }, [normalizeWebInputUrl, webUrl, clearBlockedHost, setWebFrameHint]);
 
   useEffect(() => {
     const isEditableTarget = (target: EventTarget | null) => {
@@ -852,6 +890,10 @@ export function Reader({ book, onBack }: ReaderProps) {
         webBridgeLastError={webBridgeLastError}
         webFrameHint={webFrameHint}
         webFrameStatus={webFrameStatus}
+        webBlockedByPolicy={webBlockedByPolicy}
+        onOpenWebExternally={handleOpenWebExternally}
+        onRetryWebEmbed={handleRetryWebEmbed}
+        onClearBlockedHost={handleClearBlockedHost}
         webIframeRef={webIframeRef}
         touchStartX={touchStartX}
         setTouchStartX={setTouchStartX}

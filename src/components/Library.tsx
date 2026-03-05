@@ -28,6 +28,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 interface LibraryProps {
   onSelectBook: (book: Book) => void;
+  onOpenInsights: () => void;
 }
 
 const INVALID_TITLE_PATTERNS = [
@@ -148,7 +149,7 @@ async function fileToDataURL(file: File): Promise<string> {
   });
 }
 
-export function Library({ onSelectBook }: LibraryProps) {
+export function Library({ onSelectBook, onOpenInsights }: LibraryProps) {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
@@ -329,7 +330,7 @@ export function Library({ onSelectBook }: LibraryProps) {
   const handleEditCoverFile = async (file: File | null) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      alert('请上传图片格式文件作为封面');
+      alert('Please upload an image file as the cover.');
       return;
     }
 
@@ -339,7 +340,7 @@ export function Library({ onSelectBook }: LibraryProps) {
       setEditCover(dataUrl);
     } catch (e) {
       console.error('Failed to process cover image', e);
-      alert('封面处理失败，请重试');
+      alert('Failed to process cover image. Please try again.');
     } finally {
       setIsProcessingCover(false);
     }
@@ -407,7 +408,7 @@ export function Library({ onSelectBook }: LibraryProps) {
   const handleAddWebBook = async () => {
     const normalizedUrl = normalizeWebUrl(webInputUrl);
     if (!normalizedUrl) {
-      alert('请输入有效 URL');
+      alert('Please enter a valid URL.');
       return;
     }
 
@@ -594,6 +595,7 @@ export function Library({ onSelectBook }: LibraryProps) {
         handleDelete={handleDelete}
         onSelectBook={onSelectBook}
         onShowUpload={() => setShowUploadModal(true)}
+        onOpenInsights={onOpenInsights}
       />
 
       {editingBookId && <div className="fixed inset-0 z-40" onClick={() => setEditingBookId(null)} />}
